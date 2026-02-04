@@ -8,13 +8,17 @@ requires-python = ">=3.10"
 dependencies = [
     "fastexcel",
     "jpype1",
-    "mypy",
     "polars",
     "pydantic",
+    "xlsxwriter",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
     "pyinstaller",
     "pytest",
     "ruff",
-    "xlsxwriter",
 ]
 
 [project.urls]

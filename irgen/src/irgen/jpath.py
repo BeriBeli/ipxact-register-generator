@@ -4,7 +4,7 @@ from pathlib import Path
 
 import jpype
 
-from irgen.config import *
+from irgen.config import SCHEMA_JAR
 
 
 def is_bundled() -> bool:

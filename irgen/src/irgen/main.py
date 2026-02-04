@@ -16,7 +16,13 @@ from irgen.parser import (
     process_register_sheet,
 )
 from irgen.template import generate_template
-from irgen.config import *
+from irgen.config import (
+    DEBUG,
+    DEFAULT_ADDRESS_SHEET,
+    DEFAULT_IPXACT_VERSION,
+    DEFAULT_VENDOR_SHEET,
+    LOG_FILE,
+)
 
 
 def setup_logger_level(debug: bool):
@@ -178,6 +184,14 @@ def main():
 
         # Assemble the final component data structure
         logging.info("Assembling final component structure...")
+        address_block_names = {block.getName() for block in address_blocks}
+        extra_register_sheets = [
+            name for name in all_registers.keys() if name not in address_block_names
+        ]
+        for sheet_name in extra_register_sheets:
+            logging.warning(
+                f"Register sheet '{sheet_name}' has no matching address block in '{address_sheet}'."
+            )
         for block in address_blocks:
             if block.getName() in all_registers:
                 if ipxact_version != "1685-2009":

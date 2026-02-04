@@ -8,7 +8,7 @@ from xlsxwriter import Workbook
 def generate_template():
     if Path("template.xlsx").exists():
         logging.warning("Template file already exists.")
-        # raise FileExistsError("Template file already exists.")
+        return
 
     vendor_df = pl.DataFrame(
         {
@@ -29,6 +29,8 @@ def generate_template():
             "FIELD": [""],
             "BIT": [""],
             "WIDTH": [""],
+            "REG_SIZE": [""],
+            "STRIDE": [""],
             "ATTRIBUTE": [""],
             "DEFAULT": [""],
             "DESCRIPTION": [""],

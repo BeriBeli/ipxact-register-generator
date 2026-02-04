@@ -6,8 +6,9 @@ This script leverages the Eclipse Implementation of [JAXB](https://eclipse-ee4j.
 
 > _Additional information for `example.xlsx`_
 > 1. **Hexadecimal** uses "**0x**" as a **prefix**, **decimal** does **not have a prefix**, and the use of **'h** and **'d** to denote numbers in Verilog/SystemVerilog is **prohibited**
-> 2. Multiple register groups are denoted as "**rega{n}, n=0~3**" to represent **rega_0**, **rega_1**, **rega_2**, **rega_3**
+> 2. Multiple register groups are denoted as "**rega{n}, n=0~3**" (inclusive) or "**rega{n}, n=range(0,4)**" (Python `range` semantics). "`n=3`" is treated as `range(3)`.
 > 3. Default registers are **32 bits**
+> 4. Optional columns `REG_SIZE` (bits) or `STRIDE` (bytes) can override auto-sized register width/stride.
 
 ## 🛠️ Getting Started
 
