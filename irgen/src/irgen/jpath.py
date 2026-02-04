@@ -13,8 +13,9 @@ def is_bundled() -> bool:
 
 def get_class_path() -> list[str]:
     if is_bundled():
-        schema_jar_path = Path(sys._MEIPASS) / "jar" / SCHEMA_JAR
-        dependency_path = Path(sys._MEIPASS) / "jar" / "dependency"
+        meipass: str = getattr(sys, "_MEIPASS")
+        schema_jar_path = Path(meipass) / "jar" / SCHEMA_JAR
+        dependency_path = Path(meipass) / "jar" / "dependency"
     else:
         schema_jar_path = (
             Path(__file__).parent.parent.parent.parent
@@ -53,8 +54,9 @@ def get_jvm_path() -> str:
     }.get(sys.platform, "lib/server/libjvm.so")
 
     if is_bundled():
-        if (Path(sys._MEIPASS) / "jre").exists():
-            return str(Path(sys._MEIPASS) / "jre" / library)
+        meipass: str = getattr(sys, "_MEIPASS")
+        if (Path(meipass) / "jre").exists():
+            return str(Path(meipass) / "jre" / library)
         else:
             logging.warning("No custom JVM path provided, using default JVM path.")
 
