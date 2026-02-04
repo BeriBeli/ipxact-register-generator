@@ -1,9 +1,9 @@
-import re
 import logging
+import re
 from typing import Any
 
-import polars as pl
 import jpype
+import polars as pl
 
 from irgen.attribute import (
     get_access_value,
@@ -88,18 +88,11 @@ def parse_dataframe(df: pl.DataFrame) -> pl.DataFrame:
 def process_vendor_sheet(df: pl.DataFrame, object_factory: Any) -> Any:
     """Process the Sheet<vendor> to create an IP-XACT Component object"""
     try:
-
-        def get_tag_value(tag: str) -> str:
-            value = df.filter(pl.col("TAG") == tag)["VALUE"]
-            if value.is_empty():
-                raise ValueError(f"Tag '{tag}' not found in the Sheet<vendor> ")
-            return str(value[0])
-
         component = object_factory.createComponentType()
-        component.setVendor(get_tag_value("VENDOR"))
-        component.setLibrary(get_tag_value("LIBRARY"))
-        component.setName(get_tag_value("NAME"))
-        component.setVersion(get_tag_value("VERSION"))
+        component.setVendor(str(df["VENDOR"][0]))
+        component.setLibrary(str(df["LIBRARY"][0]))
+        component.setName(str(df["NAME"][0]))
+        component.setVersion(str(df["VERSION"][0]))
 
         return component
     except (pl.exceptions.PolarsError, ValueError, KeyError) as e:

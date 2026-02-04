@@ -12,8 +12,11 @@ def generate_template():
 
     vendor_df = pl.DataFrame(
         {
-            "TAG": ["VENDOR", "LIBRARY", "NAME", "VERSION", "DESCRIPTION"],
-            "VALUE": ["", "", "", "", ""],
+            "VENDOR": [""],
+            "LIBRARY": [""],
+            "NAME": [""],
+            "VERSION": [""],
+            "DESCRIPTION": [""],
         }
     )
     address_map_df = pl.DataFrame(
@@ -33,7 +36,7 @@ def generate_template():
     )
     try:
         with Workbook("template.xlsx") as wb:
-            vendor_df.write_excel(workbook=wb, worksheet="vendor")
+            vendor_df.write_excel(workbook=wb, worksheet="version")
             address_map_df.write_excel(workbook=wb, worksheet="address_map")
             register_df.write_excel(workbook=wb, worksheet="register_template")
     except Exception as e:
