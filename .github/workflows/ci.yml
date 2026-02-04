@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Build Java components
+        working-directory: ./schema
+        run: |
+          mvn clean package
+          mvn dependency:copy-dependencies
+
+      - name: Setup Python environment
+        working-directory: ./irgen
+        run: |
+          uv venv
+          uv sync
+
+      - name: Run tests
+        working-directory: ./irgen
+        run: |
+          uv run pytest -v
+
+      - name: Run linting
+        working-directory: ./irgen
+        run: |
+          uv run ruff check src/
+
+      - name: Run type checking
+        working-directory: ./irgen
+        run: |
+          uv run mypy src/

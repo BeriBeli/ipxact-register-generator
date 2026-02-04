@@ -1,0 +1,111 @@
+name: CD
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux
+            ext: ''
+          - os: windows-latest
+            target: windows
+            ext: '.exe'
+          - os: macos-latest
+            target: macos
+            ext: ''
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Build Java components
+        working-directory: ./schema
+        run: |
+          mvn clean package
+          mvn dependency:copy-dependencies
+
+      - name: Setup Python environment
+        working-directory: ./irgen
+        run: |
+          uv venv
+          uv sync
+
+      - name: Install PyInstaller
+        working-directory: ./irgen
+        run: uv pip install pyinstaller
+
+      - name: Build executable (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        working-directory: ./irgen
+        run: |
+          uv run pyinstaller -F src/irgen/main.py \
+            --name irgen-${{ matrix.target }} \
+            --paths src \
+            --add-data "../schema/target/ipxact-schema-1.0.0.jar:jar/" \
+            --add-data "../schema/target/dependency/*:jar/dependency" \
+            --exclude-module pytest \
+            --exclude-module ruff \
+            --exclude-module mypy \
+            --console
+
+      - name: Build executable (Windows)
+        if: matrix.os == 'windows-latest'
+        working-directory: ./irgen
+        shell: pwsh
+        run: |
+          uv run pyinstaller -F src/irgen/main.py `
+            --name irgen-windows `
+            --paths src `
+            --add-data "../schema/target/ipxact-schema-1.0.0.jar;jar/" `
+            --add-data "../schema/target/dependency/*;jar/dependency" `
+            --exclude-module pytest `
+            --exclude-module ruff `
+            --exclude-module mypy `
+            --console
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: irgen-${{ matrix.target }}
+          path: irgen/dist/irgen-*${{ matrix.ext }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
