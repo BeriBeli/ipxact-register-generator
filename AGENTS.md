@@ -15,7 +15,7 @@ cd ..
 
 # Python environment
 cd irgen
-uv venv && uv sync     # Recommended
+uv venv && uv sync --extra dev     # Recommended
 # OR: python3 -m venv .venv && pip install -e .
 cd ..
 ```

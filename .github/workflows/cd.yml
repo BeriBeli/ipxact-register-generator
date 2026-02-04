@@ -47,7 +47,7 @@ jobs:
         working-directory: ./irgen
         run: |
           uv venv
-          uv sync
+          uv sync --extra dev
 
       - name: Install PyInstaller
         working-directory: ./irgen

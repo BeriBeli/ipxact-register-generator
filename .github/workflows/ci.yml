@@ -41,7 +41,7 @@ jobs:
         working-directory: ./irgen
         run: |
           uv venv
-          uv sync
+          uv sync --extra dev
 
       - name: Run tests
         working-directory: ./irgen
